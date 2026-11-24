@@ -19,8 +19,6 @@ const OP = {
   0x52: [0, 0, 1], 0x53: [0, 1, 0]
 };
 
-const enc = new TextEncoder();
-
 function run(p, inp) {
   const n = p.length;
   const D = new Int32Array(STACK_MAX), C = new Int32Array(CALLS_MAX), M = new Int32Array(MEM_WORDS);
@@ -124,9 +122,11 @@ function run(p, inp) {
         break;
       }
       case 0x50: {
-        const bytes = enc.encode(String(D[sp - 1]));
-        if (olen + bytes.length > OUTPUT_MAX) return fin(11);
-        sp--; out.set(bytes, olen); olen += bytes.length;
+        const s = String(D[sp - 1]), m = s.length;
+        if (olen + m > OUTPUT_MAX) return fin(11);
+        sp--;
+        for (let k = 0; k < m; k++) out[olen + k] = s.charCodeAt(k);
+        olen += m;
         break;
       }
       case 0x51:
